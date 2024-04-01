@@ -73,24 +73,24 @@ def ask_assistant(msg):
         )
 
         while True:
-            latest_run = client.beta.threads.runs.retrieve(
+            run = client.beta.threads.runs.retrieve(
               thread_id=thread_id,
               run_id=run.id
             )
-            if(latest_run.status=="completed"):
+            if(run.status=="completed"):
                 print("completed...")
                 retreive_msg(thread_id)
                 break;
-            elif(latest_run.status=="failed"):
+            elif(run.status=="failed"):
                 print("failed...")
                 break;
-            elif (latest_run.status=="queued" or latest_run.status=="in_progress"):
-                print(latest_run.status+"...")
+            elif (run.status=="queued" or run.status=="in_progress"):
+                print(run.status+"...")
                 time.sleep(5)
                 continue;
-            elif(latest_run.status=="requires_action"):
+            elif(run.status=="requires_action"):
                 print("required actions...")
-                run_tools = latest_run.required_action.submit_tool_outputs.tool_calls;
+                run_tools = run.required_action.submit_tool_outputs.tool_calls;
                 tools_outputs = function_tools(run_tools);
                 if(len(tools_outputs)):
                     client.beta.threads.runs.submit_tool_outputs(
@@ -105,7 +105,7 @@ def ask_assistant(msg):
                     print("tool_outputs length is 0");
                     break;
             else:
-                print("other...",latest_run.status)
+                print("other...",run.status)
                 break;
     except Exception as e:
         # Handle or log the unknown exception
